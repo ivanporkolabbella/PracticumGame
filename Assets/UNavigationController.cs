@@ -42,7 +42,7 @@ public static class UNavigationController
         _controllersStack.Clear();
 
         controller.RegisterLoad();
-
+        controller.SceneWillAppear();
         PresentViewController(controller);
     }
 
