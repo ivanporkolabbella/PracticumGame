@@ -14,4 +14,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Town.unity
     guid: 64d2ed1d0b3a34efc885ebc137744e08
+  - enabled: 1
+    path: Assets/Scenes/InGameMenu.unity
+    guid: 02fe5a2c118c043519200d29cdbaa259
+  - enabled: 1
+    path: Assets/Scenes/Dungeon.unity
+    guid: 67391367072834f0d890c088fe445454
   m_configObjects: {}

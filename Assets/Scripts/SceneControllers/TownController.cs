@@ -28,6 +28,15 @@ public class TownController : USceneController
             PopToParentSceneController();
         });
 
+
+        var inGameMenuButton = GameObject.Find("InGameMenuButton").GetComponent<Button>();
+
+        //should guard
+
+        inGameMenuButton.onClick.AddListener(() => {
+            var inGameMenuVC = new InGameMenuController();
+            AddChildSceneController(inGameMenuVC);
+        });
     }
 
     public void SetValue(int newValue)
