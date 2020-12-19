@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bullet: {fileID: 2797203178077211119, guid: e059a216037c644f8be42061631676ff, type: 3}
+  bulletPoolSize: 3
   enemy1: {fileID: 0}
   enemy2: {fileID: 0}

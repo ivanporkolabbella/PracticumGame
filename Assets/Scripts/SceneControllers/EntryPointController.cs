@@ -19,7 +19,8 @@ public class EntryPointController : MonoBehaviour
         //common assets
 
         //setup singletons
-        //AssetProvider.Prewarm();
+        AssetProvider.Prewarm();
+        InputManager.Activate();
         //network connections
 
         //create main controller

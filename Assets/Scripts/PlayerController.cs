@@ -16,14 +16,17 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         camera = Camera.main;
+        //register Inputs
+        InputManager.OnPressedFire += RegisterShooting;
+        InputManager.OnMovement += RegisterMove;
     }
 
     // Update is called once per frame
     void Update()
     {
-        HandleMove();
+        //HandleMove();
         HandleRotion();
-        HandleShooting();
+        //HandleShooting();
     }
 
     private void FixedUpdate()
@@ -52,28 +55,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleShooting()
+    private void RegisterShooting()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            var bullet = AssetProvider.GetAsset(GameAsset.Bullet);
+        var bullet = AssetProvider.GetAsset(GameAsset.Bullet);
 
-            bullet.transform.position = transform.position;
-            bullet.transform.rotation = transform.rotation;
-        }
+        bullet.transform.position = transform.position;
+        bullet.transform.rotation = transform.rotation;
     }
 
-    private void HandleMove()
+    private void RegisterMove(Vector3 direction)
     {
-        var inputX = Input.GetAxis(InputStrings.axisX);
-        var inputY = Input.GetAxis(InputStrings.axixY);
-
-        moveDirection = new Vector3(inputX, 0, inputY).normalized;
+        moveDirection = direction;
     }  
 }
-
-public struct InputStrings
-{
-    public static string axisX = "Horizontal";
-    public static string axixY = "Vertical";
-} 
