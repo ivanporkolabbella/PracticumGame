@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
     private Vector3 moveDirection;
     private float speed = 5f;
 
     private new Camera camera;
 
     private Vector3 lastMousePosition;
-    //Unity lifecycle
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -24,16 +23,13 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //HandleMove();
         HandleRotion();
-        //HandleShooting();
     }
 
     private void FixedUpdate()
     {
         transform.position += moveDirection * Time.fixedDeltaTime * speed;
     }
-
 
     //Private methods
     private void HandleRotion()
@@ -66,5 +62,11 @@ public class PlayerController : MonoBehaviour
     private void RegisterMove(Vector3 direction)
     {
         moveDirection = direction;
-    }  
+    }
+
+    void OnDestroy()
+    {
+        InputManager.OnPressedFire -= RegisterShooting;
+        InputManager.OnMovement -= RegisterMove;
+    }
 }
