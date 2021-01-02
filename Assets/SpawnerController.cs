@@ -7,11 +7,18 @@ public class SpawnerController : MonoBehaviour
 {
 
     private DelayedExecutionTicket ticket;
+    private GameObject target;
 
     // Start is called before the first frame update
     void Start()
     {
-        Spawn();
+        //just a temp solution --- will be removed afterwards
+        target = GameObject.Find("Player");
+
+        ticket = DelayedExecutionManager.ExecuteActionAfterDelay(500, () =>
+        {
+            Spawn();
+        });
     }
 
     private void Spawn()
@@ -19,18 +26,15 @@ public class SpawnerController : MonoBehaviour
         //spawn...
         var randomEnemyType = HelperFunctions.RandomEnumElement<EnemyType>();
 
-        var enemy = EnemyProvider.GetEnemy(randomEnemyType);
+        var enemy = EnemyProvider.GetEnemy(randomEnemyType).GetComponent<EnemyController>();
+        enemy.Activate(transform.position, target.transform);
 
         //keep spawning...
-        ticket = DelayedExecutionManager.ExecuteActionAfterDelay(3000, () => {
+        ticket = DelayedExecutionManager.ExecuteActionAfterDelay(3000, () =>
+        {
             Spawn();
         });
 
-        
-    }
-    // Update is called once per frame
-    void Update()
-    {
         
     }
 
