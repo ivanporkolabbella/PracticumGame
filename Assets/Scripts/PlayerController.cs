@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
     private void RegisterShooting()
     {
         var bullet = AssetProvider.GetAsset(GameAsset.Bullet);
-
+        bullet.GetComponent<BulletController>().Activate(transform);
         bullet.transform.position = transform.position;
         bullet.transform.rotation = transform.rotation;
     }

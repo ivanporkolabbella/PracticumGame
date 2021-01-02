@@ -9,6 +9,8 @@ public class AssetProvider : MonoBehaviour, IPool
     public GameObject bullet;
     public int bulletPoolSize;
 
+    [Header("Enemies")]
+    public int defaultPoolSize = 10;
     public GameObject enemy1;
     public GameObject enemy2;
 
@@ -32,6 +34,10 @@ public class AssetProvider : MonoBehaviour, IPool
         {
             case GameAsset.Bullet:
                 return GetObjectFromPool(Instance.bullet);
+            case GameAsset.Footman:
+                return GetObjectFromPool(Instance.enemy1);
+            case GameAsset.Archer:
+                return GetObjectFromPool(Instance.enemy2);
             default:
                 break;
         }
@@ -80,9 +86,17 @@ public class AssetProvider : MonoBehaviour, IPool
             GameObject.DontDestroyOnLoad(_instance.poolObject);
 
             //bullet pool
-            _instance.pool[_instance.bullet] = new Stack<GameObject>();
-            FillPool(_instance.bullet, _instance.bulletPoolSize);
+            InstatiatePool(_instance.bullet, _instance.bulletPoolSize);
+
+            InstatiatePool(_instance.enemy1, _instance.defaultPoolSize);
+            InstatiatePool(_instance.enemy2, _instance.defaultPoolSize);
         }
+    }
+
+    private static void InstatiatePool(GameObject gameObject, int poolSize)
+    {
+        _instance.pool[gameObject] = new Stack<GameObject>();
+        FillPool(gameObject, poolSize);
     }
 
     private static void FillPool(GameObject templateObject, int numberOfInstances)
@@ -107,7 +121,7 @@ public class AssetProvider : MonoBehaviour, IPool
 
 public enum GameAsset
 {
-    Bullet
+    Bullet, Footman, Archer
 }
 
 public interface IPool

@@ -9,11 +9,6 @@ public class BulletController : MonoBehaviour
 
     private PoolableObject poolable;
 
-    private void Awake()
-    {
-        originPosition = transform.position;
-    }
-
     private void Start()
     {
         poolable = GetComponent<PoolableObject>();
@@ -35,5 +30,13 @@ public class BulletController : MonoBehaviour
                 Destroy(gameObject);
             }
         }
+    }
+
+    public void Activate(Transform originTransform)
+    {
+        transform.position = originTransform.position;
+        transform.rotation = originTransform.rotation;
+        originPosition = transform.position;
+        //more stuff... color, bulletType.... 
     }
 }
