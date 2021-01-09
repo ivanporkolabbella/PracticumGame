@@ -12,6 +12,7 @@
 
     public override void Update()
     {
+        parent.controller.transform.LookAt(parent.controller.target);
         parent.controller.Shoot();
     }
 

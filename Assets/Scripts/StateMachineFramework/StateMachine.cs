@@ -17,12 +17,13 @@ public class StateMachine
 
     public virtual void Update()
     {
-        ProcessTrasitionsForState(currentState);
-
         if (anyState != null)
         {
             ProcessTrasitionsForState(anyState);
         }
+
+
+        ProcessTrasitionsForState(currentState);
 
         currentState.Update();
     }
