@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyController2 : MonoBehaviour
+public class EnemyController3 : MonoBehaviour
 {
 
     //Behavoiur:
@@ -17,7 +17,7 @@ public class EnemyController2 : MonoBehaviour
 
     private int health = 10;
 
-    private Animator stateMachine;
+    private EnemyStateMachine stateMachine;
 
     public float initialFirerate = 2f;
     private float shotCooldown;
@@ -27,7 +27,7 @@ public class EnemyController2 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        stateMachine = GetComponent<Animator>();
+        SetupStateMachine();
         SetFirerate(initialFirerate);
     }
 
@@ -35,9 +35,23 @@ public class EnemyController2 : MonoBehaviour
     void Update()
     {
         var distanceFromTarget = Vector3.Distance(transform.position, target.position);
-        stateMachine.SetFloat("Distance", distanceFromTarget);
+        stateMachine.distanceFromTarget = distanceFromTarget;
 
-        stateMachine.SetInteger("Health", health);
+        stateMachine.health = health;
+
+        stateMachine.Update();
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            health -= 2;
+            Debug.Log("Health: " + health);
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            health += 2;
+            Debug.Log("Health: " + health);
+        }
     }
 
     public void Shoot()
@@ -50,8 +64,14 @@ public class EnemyController2 : MonoBehaviour
         }
     }
 
-    private void SetFirerate(float firerate)
+    public void SetFirerate(float firerate)
     {
         shotCooldown = 1f / firerate;
+    }
+
+    private void SetupStateMachine()
+    {
+        stateMachine = new EnemyStateMachine();
+        stateMachine.controller = this;
     }
 }
