@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Dungeon.unity
     guid: 67391367072834f0d890c088fe445454
+  - enabled: 1
+    path: Assets/Scenes/ParticleTestScene.unity
+    guid: 062ac0aeba411410a9e02d2e0245a9a1
   m_configObjects: {}

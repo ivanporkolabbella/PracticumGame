@@ -28,7 +28,19 @@ public class EntryPointController : MonoBehaviour
 
 
         var dungeonVC = new DungeonController();
-        UNavigationController.SetRootViewController(dungeonVC);
+        //UNavigationController.SetRootViewController(dungeonVC);
+
+        var particleTest = new ParticleTestController();
+        UNavigationController.SetRootViewController(particleTest);
         //UNavigationController.SetRootViewController(mainMenuVC);
+    }
+}
+
+
+public class ParticleTestController : USceneController
+{
+    public ParticleTestController() : base(SceneNames.ParticleTest)
+    {
+
     }
 }
