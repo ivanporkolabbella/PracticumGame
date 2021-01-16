@@ -69,18 +69,3 @@ public enum EnemyType
 {
     Footman, Archer
 }
-
-public static class HelperFunctions
-{
-    public static System.Random randomizer = new System.Random();
-
-    public static T RandomEnumElement<T>()
-    {
-        var values = Enum.GetValues(typeof(T));
-        var randomIndex = randomizer.Next(values.Length);
-
-        T randomEnumValue = (T)values.GetValue(randomIndex);
-
-        return randomEnumValue;
-    }
-}
