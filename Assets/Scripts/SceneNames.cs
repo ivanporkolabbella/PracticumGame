@@ -7,4 +7,5 @@
 
     //test
     public static string ParticleTest = "ParticleTestScene";
+    public static string SaveLoadTest = "SaveLoadScene";
 }

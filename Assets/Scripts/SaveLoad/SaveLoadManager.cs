@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class SaveLoadManager
 {
-    private static List<ISaveLoadable> objectList = new List<ISaveLoadable>();
+    private ISerializationManager serializer = new MockSerializationManager();
+
+    private static List<ISaveLoadable> activeObjects = new List<ISaveLoadable>();
     private static int IDCount = 0;
 
     private static Dictionary<int, Dictionary<string, object>> snapshot = new Dictionary<int, Dictionary<string, object>>();
@@ -16,24 +18,26 @@ public class SaveLoadManager
 
     public static void RegisterObject(ISaveLoadable newObject)
     {
-        objectList.Add(newObject);
+        if (activeObjects.Contains(newObject)) return;
+
+        activeObjects.Add(newObject);
     }
 
     public static void DeregisterObject(ISaveLoadable objectToRemove)
     {
-        objectList.Remove(objectToRemove);
+        activeObjects.Remove(objectToRemove);
     }
 
-    public static void CleanAll()
+    public static void ClearAll()
     {
-        objectList.Clear();
+        activeObjects.Clear();
     }
 
     public static void CreateSnapshot()
     {
         snapshot.Clear();
 
-        foreach (var element in objectList)
+        foreach (var element in activeObjects)
         {
             snapshot.Add(element.ObjectID, element.GetData());
         }
@@ -41,11 +45,66 @@ public class SaveLoadManager
 
     public static void ApplySnapshot()
     {
-        foreach (var element in objectList)
+        //go through activeObjects
+        //if it doesn't exist in snapshot - destroy it (back to pool)
+        //if exists - apply data
+        //on the end, if any objects left in snapshot - create new object and apply data to it
+
+        //perhaps cache this for extra performance
+        var snapshotCopy = new Dictionary<int, Dictionary<string, object>>(snapshot);
+        var toRemove = new List<ISaveLoadable>();
+
+        foreach (var element in activeObjects)
         {
-            element.ApplyData(snapshot[element.ObjectID]);
+            Dictionary<string, object> savedData;
+            if (snapshot.TryGetValue(element.ObjectID, out savedData))
+            {
+                element.ApplyData(savedData);
+                snapshotCopy.Remove(element.ObjectID);
+            }
+            else
+            {
+                toRemove.Add(element);
+            }
+        }
+
+        //create elements missing (snapshotCopy)
+
+        foreach (var snapshot in snapshotCopy.Values)
+        {
+            var newElement = LoadableAssetsProvider.GenerateLoadableObjectFromSnapshot(snapshot);
+            newElement.Activate();
+        }
+
+        //remove objects created after taking a snapshot (toRemove)
+        foreach (var element in toRemove)
+        {
+            activeObjects.Remove(element);
+            element.GameObject.GetComponent<PoolableObject>().ReturnToPool();
         }
     }
 
+    //persistance
+    public void LoadSnapshot(string filename)
+    {
+        var data = serializer.Deserialize(filename);
+        CreateSnapshotFromSaveData(data);
+        ApplySnapshot();
+    }
 
+    private void CreateSnapshotFromSaveData(SaveData data)
+    {
+        //create snapshot
+    }
+
+    public void SaveSnapshot(string filename)
+    {
+        var data = GenerateSaveDataFromSnapshot();
+        serializer.Serialize(data, filename);
+    }
+
+    private SaveData GenerateSaveDataFromSnapshot()
+    {
+        return new SaveData();
+    }
 }

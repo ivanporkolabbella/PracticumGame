@@ -11,8 +11,11 @@ public class AssetProvider : AssetBaseProvider
     public GameObject enemy1;
     public GameObject enemy2;
 
+    [Header("LoadSave test")]
+    public GameObject box;
+
     private static AssetProvider _instance;
-    private static AssetProvider Instance
+    public static AssetProvider Instance
     {
         get {
             if (_instance == null) {
@@ -30,18 +33,7 @@ public class AssetProvider : AssetBaseProvider
 
     public static GameObject GetAsset(GameAsset asset)
     {
-        switch (asset)
-        {
-            case GameAsset.Bullet:
-                return Instance.GetObjectFromPool(Instance.bullet);
-            case GameAsset.Footman:
-                return Instance.GetObjectFromPool(Instance.enemy1);
-            case GameAsset.Archer:
-                return Instance.GetObjectFromPool(Instance.enemy2);
-            default:
-                break;
-        }
-        return null;
+        return Instance.GetObjectFromPool(GameObjectForType(asset));
     }
 
     public static void Prewarm()
@@ -60,12 +52,45 @@ public class AssetProvider : AssetBaseProvider
 
             Instance.InstatiatePool(_instance.enemy1, _instance.defaultPoolSize);
             Instance.InstatiatePool(_instance.enemy2, _instance.defaultPoolSize);
+
+            //load save
+            Instance.InstatiatePool(_instance.box, _instance.defaultPoolSize);
+        }
+    }
+
+    public PoolableObject RegisterObjectAsPoolable(GameObject gameObject, GameAsset type) 
+    {
+        var poolable = gameObject.GetComponent<PoolableObject>();
+        if (poolable == null)
+        {
+            poolable = gameObject.AddComponent<PoolableObject>();
+        }
+
+        poolable.SetPool(GameObjectForType(type), Instance);
+
+        return poolable;
+    }
+
+    public static GameObject GameObjectForType(GameAsset type)
+    {
+        switch (type)
+        {
+            case GameAsset.Bullet:
+                return Instance.bullet;
+            case GameAsset.Footman:
+                return Instance.enemy1;
+            case GameAsset.Archer:
+                return Instance.enemy2;
+            case GameAsset.Box:
+                return Instance.box;
+            default:
+                return null;
         }
     }
 }
 
 public enum GameAsset
 {
-    Bullet, Footman, Archer
+    Bullet, Footman, Archer, Box
 }
 

@@ -48,3 +48,4 @@ MonoBehaviour:
   defaultPoolSize: 10
   enemy1: {fileID: 2526687684288415775, guid: 845706a269a39453094a934bead85aa8, type: 3}
   enemy2: {fileID: 6064846478016249616, guid: 346721d6bf1e448e696ec3855b64925c, type: 3}
+  box: {fileID: 2212296354735665300, guid: bdf9f981ab88d42f9b94a6c69f1fc39e, type: 3}

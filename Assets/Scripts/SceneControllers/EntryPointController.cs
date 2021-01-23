@@ -25,54 +25,90 @@ public class EntryPointController : MonoBehaviour
 
         //create main controller
         var mainMenuVC = new MainMenuController();
-
+        //UNavigationController.SetRootViewController(mainMenuVC);
 
         var dungeonVC = new DungeonController();
         //UNavigationController.SetRootViewController(dungeonVC);
 
         var particleTest = new ParticleTestController();
-        UNavigationController.SetRootViewController(particleTest);
-        //UNavigationController.SetRootViewController(mainMenuVC);
+        //UNavigationController.SetRootViewController(particleTest);
+        
+
+        var saveLoadVC = new LoadSaveTestController();
+        UNavigationController.SetRootViewController(saveLoadVC);
     }
 }
 
-
-public class ParticleTestController : USceneController
+public class LoadSaveTestController : USceneController
 {
-    public ParticleTestController() : base(SceneNames.ParticleTest)
-    {
+    public LoadSaveTestController() : base(SceneNames.SaveLoadTest) { }
 
+    public override void SceneWillAppear()
+    {
+        base.SceneWillAppear();
+        SaveLoadManager.ClearAll();
     }
 
     public override void SceneDidLoad()
     {
-        var particleSystem = new MyFirstParticleSystem();
-        particleSystem.Activate();
+        base.SceneDidLoad();
+
+        var loadButton = GameObject.Find("LoadButton").GetComponent<Button>();
+
+        if (loadButton == null) return;
+
+        loadButton.onClick.AddListener(() => {
+            Debug.Log("Load!");
+            SaveLoadManager.ApplySnapshot();
+        });
+
+        var saveButton = new UButton("SaveButton");
+
+        saveButton.OnClick(() => {
+            Debug.Log("Save!");
+            SaveLoadManager.CreateSnapshot();
+        });
+
+        var generateBoxButton = new UButton("GenerateButton");
+
+        generateBoxButton.OnClick(() => {
+            var box = AssetProvider.GetAsset(GameAsset.Box);
+            box.transform.position = HelperFunctions.RandomVector(5, 5, 5);
+        });
+
+        //saveButton.SetText("New text");
     }
 }
 
-public class MyFirstParticleSystem : UParticleSystem
+public enum LoadableGameObject
 {
-    public MyFirstParticleSystem()
-    {
-        var emitter = new MyFirstParticleEmitter();
-        AddEmitter(emitter);
-    }
+    Box
 }
 
-public class MyFirstParticleEmitter : UParticleEmitter
+public class LoadableAssetsProvider
 {
-    public MyFirstParticleEmitter()
+    public static GameObject GetLoadableGameObject(LoadableGameObject loadable)
     {
-        initialNumber = 300;
-        particleType = ParticleType.Cube;
-        SetParticlesPerSecond(100);
-        Prewarm();
+        return AssetProvider.GetAsset(GameAssetTypeFromLoadableObject(loadable));
     }
 
-    public override void SetupParticle(UParticle particle)
+    public static GameAsset GameAssetTypeFromLoadableObject(LoadableGameObject loadable)
     {
-        particle.lifespan = 3f;
-        particle.initialForce = HelperFunctions.RandomVector(5, 15, 5);
+        switch (loadable)
+        {
+            case LoadableGameObject.Box:
+                return GameAsset.Box;
+            default:
+                return GameAsset.Archer;
+        }
+    }
+
+    public static ISaveLoadable GenerateLoadableObjectFromSnapshot(Dictionary<string, object> snapshotData)
+    {
+        var type = (LoadableGameObject)snapshotData["type"];
+        var newObject = GetLoadableGameObject(type).GetComponent<ISaveLoadable>();
+        newObject.ApplyData(snapshotData);
+
+        return newObject;
     }
 }
