@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class SaveLoadManager
 {
-    private ISerializationManager serializer = new MockSerializationManager();
+    private static ISerializationManager serializer = ServiceProvider.SerializationManager;
+
+    private static readonly string SaveGameDirectory = "/SaveGame/";
 
     private static List<ISaveLoadable> activeObjects = new List<ISaveLoadable>();
     private static int IDCount = 0;
@@ -85,26 +88,45 @@ public class SaveLoadManager
     }
 
     //persistance
-    public void LoadSnapshot(string filename)
+    public static void Load(string filename)
     {
-        var data = serializer.Deserialize(filename);
+        var data = serializer.Deserialize(FullPath(filename));
         CreateSnapshotFromSaveData(data);
         ApplySnapshot();
     }
 
-    private void CreateSnapshotFromSaveData(SaveData data)
+    private static void CreateSnapshotFromSaveData(SaveData data)
     {
         //create snapshot
+        snapshot = data.snapshot;
     }
 
-    public void SaveSnapshot(string filename)
+    public static void Save(string filename)
     {
         var data = GenerateSaveDataFromSnapshot();
-        serializer.Serialize(data, filename);
+        serializer.Serialize(data, FullPath(filename));
     }
 
-    private SaveData GenerateSaveDataFromSnapshot()
+    private static SaveData GenerateSaveDataFromSnapshot()
     {
-        return new SaveData();
+        var data = new SaveData
+        {
+            snapshot = snapshot
+        };
+
+        return data;
+    }
+
+    private static string FullPath(string filename)
+    {
+        var path = Application.dataPath + SaveGameDirectory;
+
+        //move this to the game init controller
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        return path + filename;
     }
 }

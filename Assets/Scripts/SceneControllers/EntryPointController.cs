@@ -53,20 +53,54 @@ public class LoadSaveTestController : USceneController
     {
         base.SceneDidLoad();
 
-        var loadButton = GameObject.Find("LoadButton").GetComponent<Button>();
+        DelayedExecutionManager.ExecuteActionAfterDelay(1000, () => {
+            Debug.Log("1000 miliseconds");
+        });
+        var firstTicket =  DelayedExecutionManager.ExecuteActionAfterDelay(1001, () => {
+            Debug.Log("1001 miliseconds");
+        });
 
-        if (loadButton == null) return;
+        DelayedExecutionManager.ExecuteActionAfterDelay(500, () => {
+            Debug.Log("500 miliseconds");
+        });
 
-        loadButton.onClick.AddListener(() => {
+        DelayedExecutionManager.ExecuteActionAfterDelay(1500, () => {
+            Debug.Log("1500 miliseconds");
+        });
+
+        DelayedExecutionManager.CancelTicket(firstTicket);
+
+
+        var quickLoadButton = GameObject.Find("QuickLoadButton").GetComponent<Button>();
+
+        if (quickLoadButton == null) return;
+
+        quickLoadButton.onClick.AddListener(() => {
             Debug.Log("Load!");
             SaveLoadManager.ApplySnapshot();
+        });
+
+        var quickSaveButton = new UButton("QuickSaveButton");
+
+        quickSaveButton.OnClick(() => {
+            Debug.Log("Save!");
+            SaveLoadManager.CreateSnapshot();
+        });
+
+        var loadButton = new UButton("LoadButton");
+
+        loadButton.OnClick(() => {
+            Debug.Log("Load from harddrive!");
+            SaveLoadManager.Load("one.txt");
+
         });
 
         var saveButton = new UButton("SaveButton");
 
         saveButton.OnClick(() => {
-            Debug.Log("Save!");
+            Debug.Log("Save to hard drive!");
             SaveLoadManager.CreateSnapshot();
+            SaveLoadManager.Save("one.txt");
         });
 
         var generateBoxButton = new UButton("GenerateButton");
@@ -77,6 +111,13 @@ public class LoadSaveTestController : USceneController
         });
 
         //saveButton.SetText("New text");
+    }
+
+    public override void SceneWillDisappear()
+    {
+        base.SceneWillDisappear();
+
+        //cancel out all tickets
     }
 }
 

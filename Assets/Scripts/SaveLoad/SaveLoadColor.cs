@@ -18,14 +18,14 @@ public class SaveLoadColor : SaveLoad
 
     public override void ApplyData(Dictionary<string, object> data)
     {
-        renderer.material.color = (Color)data[OverrideParams.color];
+        renderer.material.color = ((GenericArrayWrapper)data[OverrideParams.color]).ToColor();
         base.ApplyData(data);
     }
 
     public override Dictionary<string, object> GetData()
     {
         var data = base.GetData();
-        data.Add(OverrideParams.color, renderer.material.color);
+        data.Add(OverrideParams.color, GenericArrayWrapper.InitFromColor(renderer.material.color));
 
         return data;
     }
