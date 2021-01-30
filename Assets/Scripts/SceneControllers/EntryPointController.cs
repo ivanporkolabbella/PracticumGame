@@ -31,11 +31,11 @@ public class EntryPointController : MonoBehaviour
         //UNavigationController.SetRootViewController(dungeonVC);
 
         var particleTest = new ParticleTestController();
-        //UNavigationController.SetRootViewController(particleTest);
+        UNavigationController.SetRootViewController(particleTest);
         
 
         var saveLoadVC = new LoadSaveTestController();
-        UNavigationController.SetRootViewController(saveLoadVC);
+        //UNavigationController.SetRootViewController(saveLoadVC);
     }
 }
 

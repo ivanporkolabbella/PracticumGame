@@ -26,8 +26,19 @@ public class UParticleEmitter
     public float particlesPerSecond = 0f;
     private int milisecondsBetweenParticlesEmitted;
 
+    private float timeBetweenParticlesEmitted;
+    private float spawnTimer;
+
     //
     private DelayedExecutionTicket ticket;
+
+    //burts
+    private UParticleBurst[] bursts;
+    private float burstCycleLenght;
+    private int numberOfBurstCycles;
+    private int currentBurstCycle = 0;
+    private float lastBurstTimer;
+    private int lastBurstIndex = 0;
 
     //Render/Output
     public ParticleType particleType = ParticleType.Cube;
@@ -60,15 +71,93 @@ public class UParticleEmitter
             isPrewarmed = true;
             ParticleAssetProvider.Prewarm(particleType, 1);
         }
+        ExecuteBurst();
+    }
 
-        //grab all need particles from the pool (from Assets providers)
-        if (particlesPerSecond > 0 && milisecondsBetweenParticlesEmitted > 0)
+    public virtual void Update(float deltaTime)
+    {
+        var scaledDeltaTime = deltaTime * timeScale;
+
+        spawnTimer += scaledDeltaTime;
+        Spawn();
+        Burst(scaledDeltaTime);
+
+        for (int i = 0; i < particles.Count; i++)
         {
-            DelayedExecutionManager.ExecuteActionAfterDelay(milisecondsBetweenParticlesEmitted, () => { Spawn(); });
+            UpdateParticle(particles[i], scaledDeltaTime);
+            particles[i].Update(scaledDeltaTime);
+        }
+    }
+
+    public void Burst(float deltaTime)
+    {
+        //check if our current cycle is less then numberOfCycles
+        if (currentBurstCycle >= numberOfBurstCycles) { return; }
+
+        lastBurstTimer += deltaTime;
+
+        //if (lastBurstIndex < bursts.Length)
+        //{
+        //    var i = lastBurstIndex;
+        //    while (i < bursts.Length && bursts[i].timestamp < lastBurstTimer)
+        //    {
+        //        for (int j = 0; j < bursts[i].numberOfParticles; j++)
+        //        {
+        //            GenerateParticle();
+        //        }
+        //        i++;
+        //    }
+        //    lastBurstIndex = i;
+        //}
+
+        //if (lastBurstTimer > burstCycleLenght)
+        //{
+        //    lastBurstIndex = 0;
+        //    lastBurstTimer -= burstCycleLenght;
+        //    currentBurstCycle++;
+        //}
+
+        if (lastBurstTimer > burstCycleLenght)
+        {
+            lastBurstTimer -= burstCycleLenght;
+            currentBurstCycle++;
+            ExecuteBurst();
+        }
+    }
+
+    public void ExecuteBurst()
+    {
+        if (bursts == null || bursts.Length == 0) { return; }
+
+        foreach (var burst in bursts)
+        {
+            //TODO: make timestampInMiliseconds property on burst object
+            //TODO: Change Generate particle method: GenerateParticles(int numberOfParticles)
+            DelayedExecutionManager.ExecuteActionAfterDelay((int)(burst.timestamp * 1000), () => {
+                for (int j = 0; j < burst.numberOfParticles; j++)
+                {
+                    GenerateParticle();
+                }
+            });
         }
     }
 
     public void Spawn()
+    {
+        if (spawnTimer < timeBetweenParticlesEmitted) { return; }
+
+        var numberOfParticleToSpawn = (int)(spawnTimer / timeBetweenParticlesEmitted);
+
+        //TODO: Optimize this
+        spawnTimer -= numberOfParticleToSpawn * timeBetweenParticlesEmitted;
+
+        for (int i = 0; i < numberOfParticleToSpawn; i++)
+        {
+            GenerateParticle();
+        }
+    }
+
+    private void GenerateParticle()
     {
         var particleObject = ParticleAssetProvider.GetParticle(particleType);
         var particle = new UParticle(particleObject);
@@ -83,8 +172,6 @@ public class UParticleEmitter
         SetupParticle(particle);
 
         particle.Activate();
-
-        ticket = DelayedExecutionManager.ExecuteActionAfterDelay(milisecondsBetweenParticlesEmitted,() => { Spawn(); });
     }
 
     private Vector3 GetPositionOffset()
@@ -99,14 +186,9 @@ public class UParticleEmitter
 
     }
 
-    public virtual void Update(float deltaTime)
+    public virtual void UpdateParticle(UParticle particle, float deltaTime)
     {
-        var scaledDeltaTime = deltaTime * timeScale;
 
-        for (int i = 0; i < particles.Count; i++)
-        {
-            particles[i].Update(scaledDeltaTime);
-        }
     }
 
     public void SetParticlesPerSecond(float particlesPerSecond)
@@ -114,8 +196,17 @@ public class UParticleEmitter
         this.particlesPerSecond = particlesPerSecond;
         if (particlesPerSecond > 0)
         {
+            timeBetweenParticlesEmitted = 1f / particlesPerSecond;
+            //TODO: remove if not needed
             milisecondsBetweenParticlesEmitted = (int)(1000f / particlesPerSecond);
         }
+    }
+
+    public void SetBurst(UParticleBurst[] bursts, float burstCycle, int numberOfCycles = 1) 
+    {
+        this.bursts = bursts;
+        this.burstCycleLenght = burstCycle;
+        this.numberOfBurstCycles = numberOfCycles;
     }
 }
 
@@ -139,6 +230,8 @@ public class UParticle
 
     public float lifespan = 0f;
     private float currentAge = 0f;
+
+    public float currentAgePercentage => currentAge / lifespan;
 
     public Action<UParticle> OnDestroyed;
 
@@ -218,5 +311,17 @@ public class UParticleSystem
     public void AddEmitter(UParticleEmitter emitter)
     {
         emitters.Add(emitter);
+    }
+}
+
+public struct UParticleBurst
+{
+    public float timestamp;
+    public int numberOfParticles;
+
+    public UParticleBurst(float timestamp, int numberOfParticles)
+    {
+        this.timestamp = timestamp;
+        this.numberOfParticles = numberOfParticles;
     }
 }
