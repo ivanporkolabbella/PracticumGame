@@ -126,6 +126,36 @@ public class ULabel: UObject
                 return null;
         }
     }
+
+    public void Localize(bool shouldLocalize = true)
+    {
+        if (shouldLocalize)
+        {
+            //turn on localization
+            ULocalization.LanguageChanged += UpdateLanguage;
+            initialText = Text();
+            UpdateLanguage();
+        }
+        else
+        {
+            //turn it off
+            ULocalization.LanguageChanged -= UpdateLanguage;
+            SetText(initialText);
+        }
+    }
+
+    public void Localize(string key)
+    {
+        initialText = key;
+        ULocalization.LanguageChanged += UpdateLanguage;
+        UpdateLanguage();
+    }
+
+    public void UpdateLanguage()
+    {
+        var text = ULocalization.LocalizedStringForKey(initialText);
+        SetText(text);
+    }
 }
 
 public enum LabelMode
@@ -170,6 +200,7 @@ public class UImage
     }
 }
 
+//TODO: Think about how to implement this!
 public abstract class UObject
 {
     public virtual void WillBeRemoved() { }

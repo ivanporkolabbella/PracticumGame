@@ -21,6 +21,8 @@ public class EntryPointController : MonoBehaviour
         //setup singletons
         AssetProvider.Prewarm();
         InputManager.Activate();
+        ULocalization.Init();
+
         //network connections
 
         //create main controller
@@ -28,7 +30,7 @@ public class EntryPointController : MonoBehaviour
         //UNavigationController.SetRootViewController(mainMenuVC);
 
         var dungeonVC = new DungeonController();
-        UNavigationController.SetRootViewController(dungeonVC);
+        //UNavigationController.SetRootViewController(dungeonVC);
 
         var particleTest = new ParticleTestController();
         //UNavigationController.SetRootViewController(particleTest);
@@ -36,6 +38,32 @@ public class EntryPointController : MonoBehaviour
 
         var saveLoadVC = new LoadSaveTestController();
         //UNavigationController.SetRootViewController(saveLoadVC);
+
+        var localizationVC = new LocalizationController();
+        UNavigationController.SetRootViewController(localizationVC);
+    }
+}
+
+public class LocalizationController : USceneController
+{
+    public LocalizationController() : base(SceneNames.LocalizationTest) { }
+
+    public override void SceneDidLoad()
+    {
+        var engButton = new UButton("Button1");
+        var hrButton = new UButton("Button2");
+        var titleLabel = new ULabel("TitleLabel");
+
+
+        engButton.OnClick(() => ULocalization.SetLanguage(LocalizationLanguage.en));
+
+        hrButton.OnClick(() => ULocalization.SetLanguage(LocalizationLanguage.hr));
+
+        engButton.label.Localize("button1");
+        hrButton.label.Localize("button2");
+        titleLabel.Localize("title");
+
+
     }
 }
 
