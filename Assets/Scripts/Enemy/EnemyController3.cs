@@ -23,6 +23,8 @@ public class EnemyController3 : MonoBehaviour
     private float shotCooldown;
     private float nextShotTime;
 
+    private bool isFrozen;
+
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +40,7 @@ public class EnemyController3 : MonoBehaviour
         stateMachine.distanceFromTarget = distanceFromTarget;
 
         stateMachine.health = health;
+        stateMachine.isFrozen = isFrozen;
 
         stateMachine.Update();
 
@@ -51,6 +54,11 @@ public class EnemyController3 : MonoBehaviour
         {
             health += 2;
             Debug.Log("Health: " + health);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            isFrozen = !isFrozen;
         }
     }
 

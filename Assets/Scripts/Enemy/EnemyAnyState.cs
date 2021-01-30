@@ -9,5 +9,8 @@
 
         var toEnrage = new StateMachineTransition(typeof(EnemyEnrageState), () => parent.health > 0 && parent.health <= 3);
         AddTransition(toEnrage);
+
+        var toFrozen = new StateMachineTransition(typeof(EnemyFrozenStateMachine), () => parent.isFrozen);
+        AddTransition(toFrozen);
     }
 }

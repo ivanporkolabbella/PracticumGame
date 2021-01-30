@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//TODO: Make Particle pooling system use UParticle not GameObjects
+//TODO: Separate all classes to its own files
+
+
 //emit particles (create them, destroy them... pooling system)
 //initialize particles with initial values
 //update particles...

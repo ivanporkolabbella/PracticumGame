@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class StateMachine
+//TODO: Separate classes in their files
+
+public class StateMachine : IStateMachineState
 {
-    public Dictionary<Type, StateMachineState> states = new Dictionary<Type, StateMachineState>();
-    public StateMachineState currentState;
-    public StateMachineState anyState;
+    public Dictionary<Type, IStateMachineState> states = new Dictionary<Type, IStateMachineState>();
+    public IStateMachineState currentState;
+    public IStateMachineState anyState;
+
+    public List<StateMachineTransition> transitions = new List<StateMachineTransition>();
+    public StateMachine parentMachine;
+
 
     public void InitializeMachine(Type initialState)
     {
@@ -28,9 +34,9 @@ public class StateMachine
         currentState.Update();
     }
 
-    private void ProcessTrasitionsForState(StateMachineState state)
+    private void ProcessTrasitionsForState(IStateMachineState state)
     {
-        foreach (var transtion in state.transitions)
+        foreach (var transtion in state.GetTransitions())
         {
             if (transtion.Evaluate())
             {
@@ -40,7 +46,7 @@ public class StateMachine
         }
     }
 
-    private void ChangeState(StateMachineState state)
+    private void ChangeState(IStateMachineState state)
     {
         if (state == currentState) return;
 
@@ -49,22 +55,63 @@ public class StateMachine
         currentState = state;
     }
 
-    public void AddState(StateMachineState state)
+    public void AddState(IStateMachineState state)
     {
         states[state.GetType()] = state;
-        state.parentMachine = this;
+        state.SetParent(this);
         state.SetupTransitions();
     }
 
-    public void AddAnyState(StateMachineState state)
+    public void AddAnyState(IStateMachineState state)
     {
         anyState = state;
-        anyState.parentMachine = this;
+        anyState.SetParent(this);
         anyState.SetupTransitions();
-    } 
+    }
+
+    //IStateMachineState interface
+    public void SetParent(StateMachine parent)
+    {
+        parentMachine = parent;
+    }
+
+    public List<StateMachineTransition> GetTransitions()
+    {
+        return transitions;
+    }
+
+    public virtual void OnStateEnter()
+    {
+        currentState.OnStateEnter();
+    }
+
+    public virtual void OnStateExit()
+    {
+        currentState.OnStateExit();
+    }
+
+    public virtual void SetupTransitions()
+    {
+        
+    }
+
+    public void AddTransition(StateMachineTransition transition) 
+    {
+        transitions.Add(transition);
+    }
 }
 
-public abstract class StateMachineState
+public interface IStateMachineState
+{
+    void SetParent(StateMachine parent);
+    List<StateMachineTransition> GetTransitions();
+    void Update();
+    void OnStateEnter();
+    void OnStateExit();
+    void SetupTransitions();
+}
+
+public abstract class StateMachineState : IStateMachineState
 {
     public StateMachine parentMachine;
 
@@ -90,6 +137,16 @@ public abstract class StateMachineState
     }
 
     public abstract void SetupTransitions();
+
+    public void SetParent(StateMachine parent)
+    {
+        this.parentMachine = parent;
+    }
+
+    public List<StateMachineTransition> GetTransitions()
+    {
+        return transitions;
+    }
 }
 
 public class StateMachineTransition
